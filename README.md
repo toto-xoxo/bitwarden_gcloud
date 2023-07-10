@@ -47,7 +47,7 @@ Google Cloud offers an '[always free](https://cloud.google.com/free/)' tier of t
 Go to [Google Compute Engine](https://cloud.google.com/compute) and open a Cloud Shell. You may also create the instance manually following [the constraints of the free tier](https://cloud.google.com/free/docs/gcp-free-tier). In the Cloud Shell enter the following command to build the properly spec'd machine: 
 
 ```bash
-$ gcloud compute instances create bitwarden \
+$ gcloud compute instances create vaultwarden \
     --machine-type e2-micro \
     --zone us-central1-a \
     --image-project cos-cloud \
@@ -61,8 +61,8 @@ You may change the zone to be closer to you or customize the name (`bitwarden`),
 
 Next, create firewall rules to allow traffic to your VM. Bitwarden only serves encrypted traffic over HTTPS, but port 80 is needed for the Let's Encrypt challenges served by Caddy:
 ```bash
-$ gcloud compute firewall-rules create bitwarden-http-ingress --action allow --target-tags http-server --rules tcp:80
-$ gcloud compute firewall-rules create bitwarden-https-ingress --action allow --target-tags https-server --rules tcp:443
+$ gcloud compute firewall-rules create vaultwarden-http-ingress --action allow --target-tags http-server --rules tcp:80
+$ gcloud compute firewall-rules create vaultwarden-https-ingress --action allow --target-tags https-server --rules tcp:443
 ```
 
 ## Step 2: Pull and Configure Project
