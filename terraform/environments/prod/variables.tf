@@ -24,7 +24,7 @@ variable "machine_type" {
 }
 
 variable "disk_size" {
-    type = string
+    type = number
     description = "Disk size of the instance"
 }
 
@@ -43,9 +43,19 @@ variable "github_branch" {
     description = "Github branch to use"
 }
 
+variable "home_dir" {
+    type = string
+    description = "Home directory to use"
+}
+
 variable "domain" {
     type = string
     description = "Domain to use"
+}
+
+variable "admin_token" {
+    type = string
+    description = "Admin token to use"
 }
 
 variable "timezone" {
@@ -87,3 +97,8 @@ variable "backup_rclone_dest" {
     type = string
     description = "Backup rclone destination"
 } 
+
+variable "env" {
+    type = string
+    description = "Environment"
+}

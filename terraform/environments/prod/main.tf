@@ -41,10 +41,10 @@ resource "google_compute_instance" "vaultwarden" {
             WATCHTOWER_SCHEDULE=0 0 3 ? * 0
 
       runcmd:
-        - curl -sSfL "https://raw.githubusercontent.com/${var.github_repo}/bitwarden_gcloud/${var.script_url}/utilities/install-alias.sh" | bash
+        - curl -sSfL "https://raw.githubusercontent.com/${var.github_repo}/utilities/install-alias.sh" | bash
         - docker-compose up -d
       EOF
-    "startup-script-url" = "https://github.com/${var.github_repo}/bitwarden_gcloud/blob/${var.script_url}/utilities/reboot-on-update.sh"
+    "startup-script-url" = "https://raw.githubusercontent.com/${var.github_repo}/utilities/reboot-on-update.sh"
   }
 
   boot_disk {
