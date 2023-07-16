@@ -12,12 +12,13 @@ steps:
 - id: 'tf init'
   name: 'hashicorp/terraform:1.4.6'
   entrypoint: 'sh'
+  secretEnv: ['admin_token', 'push_installation_id', 'push_installation_key', 'email', 'domain', 'home_dir', 'home_user']
   args: 
   - '-c'
   - |
       if [ -d "terraform/environments/$BRANCH_NAME/" ]; then
         cd terraform/environments/$BRANCH_NAME
-        echo -e "$$admin_token\n$$push_installation_id\n$$push_installation_key\n$$email\n$$domain\n$$home_dir" > $BRANCH_NAME.auto.tfvars
+        echo -e "$$admin_token\n$$push_installation_id\n$$push_installation_key\n$$email\n$$domain\n$$home_dir\n$$home_user" > $BRANCH_NAME.auto.tfvars
         terraform init
       else
         for dir in terraform/environments/*/
@@ -86,4 +87,6 @@ availableSecrets:
     env: domain
   - versionName: projects/$PROJECT_NUMBER/secrets/home_dir-$BRANCH_NAME/versions/latest
     env: home_dir
+  - versionName: projects/$PROJECT_NUMBER/secrets/home_user-$BRANCH_NAME/versions/latest
+    env: home_user
     

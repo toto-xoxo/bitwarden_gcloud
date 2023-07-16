@@ -1,0 +1,17 @@
+project_id = "vault-392321"
+region = "us-central1"
+zone = "us-central1-a"
+machine_type = "e2-micro"
+instance_name = "vaultwarden"
+disk_size = 30
+network = "default"
+github_repo_user = "toto-xoxo"
+github_repo_name = "bitwarden_gcloud"
+github_branch = "dev"
+timezone = "Europe/Paris"
+push_enabled = true
+backup_days = 30
+backup_dir = "/data/backups"
+backup_rclone_conf = "/data/rclone.conf"
+backup_rclone_dest = "/Backup/Vaultwarden"
+env = "dev"

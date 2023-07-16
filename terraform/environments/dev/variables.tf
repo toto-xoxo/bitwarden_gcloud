@@ -53,6 +53,11 @@ variable "home_dir" {
     description = "Home directory to use"
 }
 
+variable "home_user" {
+    type = string
+    description = "Home user to use"
+}
+
 variable "domain" {
     type = string
     description = "Domain to use"
@@ -86,6 +91,11 @@ variable "push_installation_key" {
 variable "email" {
     type = string
     description = "Email to use for caddy (SSL cert)"
+}
+
+variable "backup_days" {
+    type = number
+    description = "Backup days"
 }
 
 variable "backup_dir" {

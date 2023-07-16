@@ -1,13 +1,26 @@
+module "project-services" {
+  source  = "terraform-google-modules/project-factory/google//modules/project_services"
+  version = "~> 14.2"
+
+  project_id = var.project_id
+
+  activate_apis = ["compute.googleapis.com", "iam.googleapis.com", "storage.googleapis.com", "cloudresourcemanager.googleapis.com", "cloudbilling.googleapis.com", "serviceusage.googleapis.com"]
+
+  disable_dependent_services = false
+  disable_services_on_destroy	= false
+}
+
 resource "google_compute_instance" "vaultwarden" {
   name         = "${var.instance_name}-${var.env}"
   machine_type = var.machine_type
   zone         = var.zone
+  depends_on = [ module.project-services ]
 
   metadata = {
     "user-data" = <<-EOF
       #cloud-config
       write_files:
-        - path: ${var.home_dir}/.env
+        - path: ${var.home_dir}/${var.github_repo_name}/.env
           content: |
             ### VAULTWARDEN ###
 
@@ -21,7 +34,7 @@ resource "google_compute_instance" "vaultwarden" {
             ### BACKUP ###
 
             BACKUP_SCHEDULE=0 0 * * *
-            BACKUP_DAYS=30
+            BACKUP_DAYS=${var.backup_days}
             BACKUP_DIR=${var.backup_dir}
             BACKUP=rclone
             BACKUP_RCLONE_CONF=${var.backup_rclone_conf}
@@ -41,11 +54,11 @@ resource "google_compute_instance" "vaultwarden" {
             WATCHTOWER_SCHEDULE=0 0 3 ? * 0
 
       runcmd:
-        - curl -sSfL "https://raw.githubusercontent.com/${var.github_repo_user}/${var.github_repo_name}/${var.github_branch}/utilities/install-alias.sh" | bash
         - cd ${var.home_dir}
-        - git clone --branch ${var.env} https://github.com/${var.github_repo_user}/${var.github_repo_name}.git
-        - cd ${var.home_dir}/${var.github_repo_name}
-        - docker-compose up -d
+        - sudo -S -u ${var.home_user} -i /bin/bash -l -c 'curl -sSfL "https://raw.githubusercontent.com/${var.github_repo_user}/${var.github_repo_name}/${var.github_branch}/utilities/install-alias.sh" | bash'
+        - sudo -S -u ${var.home_user} -i /bin/bash -l -c 'git clone --branch ${var.env} https://github.com/${var.github_repo_user}/${var.github_repo_name}.git'
+        - cd ${var.github_repo_name}
+        - sudo -S -u ${var.home_user} -i /bin/bash -l -c 'docker-compose up -d'
       EOF
     "startup-script-url" = "https://raw.githubusercontent.com/${var.github_repo_user}/${var.github_repo_name}/${var.github_branch}/utilities/reboot-on-update.sh"
   }

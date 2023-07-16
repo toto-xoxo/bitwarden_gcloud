@@ -7,16 +7,3 @@
 - terraform implementation
 
 and small things here and there.
-
-Navigate to Cloud Build, enable Cloud Build API
-Navigate to settings, note your Service account email
-Create your project folder structure
-.
-├── cloudbuild.yaml
-└── terraform
-    └── environments
-        └── master
-            └── main.tf
-
-Go to IAM > IAM and grant Editor role to your Service account
-

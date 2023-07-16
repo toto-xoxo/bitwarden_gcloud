@@ -1,5 +1,5 @@
 resource "google_compute_firewall" "vaultwarden-http-ingress" {
-  name    = "vaultwarden-http-ingress-${var.env}"
+  name    = "http-ingress"
   network = var.network
   allow {
     protocol = "tcp"
@@ -10,7 +10,7 @@ resource "google_compute_firewall" "vaultwarden-http-ingress" {
 }
 
 resource "google_compute_firewall" "vaultwarden-https-ingress" {
-  name    = "vaultwarden-https-ingress-${var.env}"
+  name    = "https-ingress"
   network = var.network
   allow {
     protocol = "tcp"
