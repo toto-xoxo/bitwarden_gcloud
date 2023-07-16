@@ -3,7 +3,7 @@
     level INFO
     output file {$LOG_FILE} {
       roll_size 10MB
-      roll_keep 10
+      roll_keep 30
     }
   }
 
