@@ -33,9 +33,14 @@ variable "network" {
     description = "Network of the instance"
 }
 
-variable "github_repo" {
+variable "github_repo_user" {
     type = string
-    description = "Github repo to use"
+    description = "Github repo user to use"
+}
+
+variable "github_repo_name" {
+    type = string
+    description = "Github repo name to use"
 }
 
 variable "github_branch" {

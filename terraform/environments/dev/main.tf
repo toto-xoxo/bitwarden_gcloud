@@ -1,5 +1,5 @@
 resource "google_compute_instance" "vaultwarden" {
-  name         = var.instance_name
+  name         = "${var.instance_name}-${var.env}"
   machine_type = var.machine_type
   zone         = var.zone
 
@@ -15,8 +15,8 @@ resource "google_compute_instance" "vaultwarden" {
             TZ= "${var.timezone}"
             ADMIN_TOKEN= "${var.admin_token}"
             PUSH_ENABLED= ${var.push_enabled}
-            PUSH_INSTALLATION_ID= "${var.push_installation_id}}"
-            PUSH_INSTALLATION_KEY= "${var.push_installation_key}}"
+            PUSH_INSTALLATION_ID= "${var.push_installation_id}"
+            PUSH_INSTALLATION_KEY= "${var.push_installation_key}"
 
             ### BACKUP ###
 
@@ -41,10 +41,13 @@ resource "google_compute_instance" "vaultwarden" {
             WATCHTOWER_SCHEDULE=0 0 3 ? * 0
 
       runcmd:
-        - curl -sSfL "https://raw.githubusercontent.com/${var.github_repo}/utilities/install-alias.sh" | bash
+        - curl -sSfL "https://raw.githubusercontent.com/${var.github_repo_user}/${var.github_repo_name}/${var.github_branch}/utilities/install-alias.sh" | bash
+        - cd ${var.home_dir}
+        - git clone --branch ${var.env} https://github.com/${var.github_repo_user}/${var.github_repo_name}.git
+        - cd ${var.home_dir}/${var.github_repo_name}
         - docker-compose up -d
       EOF
-    "startup-script-url" = "https://raw.githubusercontent.com/${var.github_repo}/utilities/reboot-on-update.sh"
+    "startup-script-url" = "https://raw.githubusercontent.com/${var.github_repo_user}/${var.github_repo_name}/${var.github_branch}/utilities/reboot-on-update.sh"
   }
 
   boot_disk {
