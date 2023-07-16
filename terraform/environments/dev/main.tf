@@ -19,8 +19,10 @@ resource "google_compute_instance" "vaultwarden" {
   metadata = {
     "user-data" = <<-EOF
       #cloud-config
+      
       write_files:
-        - path: ${var.home_dir}/${var.github_repo_name}/.env
+        - path: ${var.home_dir}/.env
+          owner: ${var.home_user}:${var.home_user}
           content: |
             ### VAULTWARDEN ###
 
@@ -55,10 +57,11 @@ resource "google_compute_instance" "vaultwarden" {
 
       runcmd:
         - cd ${var.home_dir}
-        - sudo -S -u ${var.home_user} -i /bin/bash -l -c 'curl -sSfL "https://raw.githubusercontent.com/${var.github_repo_user}/${var.github_repo_name}/${var.github_branch}/utilities/install-alias.sh" | bash'
-        - sudo -S -u ${var.home_user} -i /bin/bash -l -c 'git clone --branch ${var.env} https://github.com/${var.github_repo_user}/${var.github_repo_name}.git'
+        - su -c 'curl -sSfL "https://raw.githubusercontent.com/${var.github_repo_user}/${var.github_repo_name}/${var.github_branch}/utilities/install-alias.sh" | bash' - ${var.home_user}
+        - su -c 'git clone --branch ${var.env} https://github.com/${var.github_repo_user}/${var.github_repo_name}.git' - ${var.home_user}
+        - mv ${var.home.dir}/.env ${var.github_repo_name}/.env
         - cd ${var.github_repo_name}
-        - sudo -S -u ${var.home_user} -i /bin/bash -l -c 'docker-compose up -d'
+        - su -c 'source ~/.bashrc; docker-compose up -d' - ${var.home_user}
       EOF
     "startup-script-url" = "https://raw.githubusercontent.com/${var.github_repo_user}/${var.github_repo_name}/${var.github_branch}/utilities/reboot-on-update.sh"
   }
