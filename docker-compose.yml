@@ -28,8 +28,8 @@ services:
     depends_on:
       - vaultwarden
     volumes:
-      - ${PWD}/bitwarden:/data:ro
-      - ${PWD}/bitwarden/backups:/data/backups
+      - ${PWD}/vaultwarden:/data:ro
+      - ${PWD}/vaultwarden/backups:/data/backups
     environment:
       - BACKUP # Value-less variables are set in .env
       - BACKUP_SCHEDULE
