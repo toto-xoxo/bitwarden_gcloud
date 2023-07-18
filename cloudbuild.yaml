@@ -18,12 +18,12 @@ steps:
   - |
       if [ -d "terraform/environments/$BRANCH_NAME/" ]; then
         cd terraform/environments/$BRANCH_NAME
-        echo -e "$$admin_token\n$$push_installation_id\n$$push_installation_key\n$$email\n$$domain\n$$home_dir\n$$home_user" > $BRANCH_NAME.auto.tfvars
+        echo -e "project_id=\"$PROJECT_ID\"\nenv=\"$BRANCH_NAME\"\n$$admin_token\n$$push_installation_id\n$$push_installation_key\n$$email\n$$domain\n$$home_dir\n$$home_user" > $BRANCH_NAME.auto.tfvars
         terraform init
       else
         for dir in terraform/environments/*/
-        do 
-          cd ${dir}   
+        do
+          cd ${dir}
           env=${dir%*/}
           env=${env#*/}
           echo ""
@@ -73,6 +73,7 @@ steps:
         echo "Branch '$BRANCH_NAME' does not represent an official environment."
         echo "*******************************************************************************"
       fi
+
 availableSecrets:
   secretManager:
   - versionName: projects/$PROJECT_NUMBER/secrets/admin_token-$BRANCH_NAME/versions/latest

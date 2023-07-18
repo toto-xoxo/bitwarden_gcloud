@@ -10,5 +10,6 @@ terraform {
 provider "google" {
   project     = var.project_id
   region      = var.region
-  credentials = file("account.json")
+  zone        = var.zone
+  credentials = file("${path.module}/account.json")
 }

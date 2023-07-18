@@ -1,7 +1,7 @@
 terraform {
    backend "gcs" {
     bucket = "vault-392321-tf-state" # Replace with your bucket name
-    prefix = "dev"# Replace with your environment name
+    prefix = "prod"# Replace with your environment name
   } 
 }
 
