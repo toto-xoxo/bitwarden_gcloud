@@ -12,27 +12,16 @@ steps:
 - id: 'tf init'
   name: 'hashicorp/terraform:1.4.6'
   entrypoint: 'sh'
-  secretEnv: ['admin_token', 'push_installation_id', 'push_installation_key', 'email', 'domain', 'home_dir', 'home_user']
+  secretEnv: ['admin_token', 'push_installation_id', 'push_installation_key', 'email', 'domain', 'home_dir', 'home_user', 'cloudflare_api_token', 'cloudflare_zone_id']
   args: 
   - '-c'
   - |
       if [ -d "terraform/environments/$BRANCH_NAME/" ]; then
         cd terraform/environments/$BRANCH_NAME
-        echo -e "project_id=\"$PROJECT_ID\"\nenv=\"$BRANCH_NAME\"\n$$admin_token\n$$push_installation_id\n$$push_installation_key\n$$email\n$$domain\n$$home_dir\n$$home_user" > $BRANCH_NAME.auto.tfvars
+        echo -e "project_id=\"$PROJECT_ID\"\nenv=\"$BRANCH_NAME\"\ncloudflare_api_token=\"$$cloudflare_api_token\"\ncloudflare_zone_id=\"$$cloudflare_zone_id\"\n$$admin_token\n$$push_installation_id\n$$push_installation_key\n$$email\n$$domain\n$$home_dir\n$$home_user" > $BRANCH_NAME.auto.tfvars
         terraform init
       else
-        for dir in terraform/environments/*/
-        do
-          cd ${dir}
-          env=${dir%*/}
-          env=${env#*/}
-          echo ""
-          echo "*************** TERRAFORM INIT ******************"
-          echo "******* At environment: ${env} ********"
-          echo "*************************************************"
-          terraform init || exit 1
-          cd ../../
-        done
+        exit 1
       fi 
 
 - id: 'tf plan'
@@ -45,18 +34,7 @@ steps:
         cd terraform/environments/$BRANCH_NAME
         terraform plan
       else
-        for dir in terraform/environments/*/
-        do 
-          cd ${dir}   
-          env=${dir%*/}
-          env=${env#*/}  
-          echo ""
-          echo "*************** TERRAFOM PLAN ******************"
-          echo "******* At environment: ${env} ********"
-          echo "*************************************************"
-          terraform plan || exit 1
-          cd ../../
-        done
+        exit 1
       fi 
 
 - id: 'tf apply'
@@ -90,4 +68,8 @@ availableSecrets:
     env: home_dir
   - versionName: projects/$PROJECT_NUMBER/secrets/home_user-$BRANCH_NAME/versions/latest
     env: home_user
+  - versionName: projects/$PROJECT_NUMBER/secrets/cloudflare_api_token-$BRANCH_NAME/versions/latest
+    env: cloudflare_api_token
+  - versionName: projects/$PROJECT_NUMBER/secrets/cloudflare_zone_id-$BRANCH_NAME/versions/latest
+    env: cloudflare_zone_id
     
