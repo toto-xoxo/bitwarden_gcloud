@@ -12,13 +12,13 @@ steps:
 - id: 'tf init'
   name: 'hashicorp/terraform:1.4.6'
   entrypoint: 'sh'
-  secretEnv: ['admin_token', 'push_installation_id', 'push_installation_key', 'email', 'domain', 'home_dir', 'home_user', 'cloudflare_api_token', 'cloudflare_zone_id']
+  secretEnv: ['admin_token', 'push_installation_id', 'push_installation_key', 'email', 'domain', 'home_dir', 'home_user', 'cloudflare_api_token']
   args: 
   - '-c'
   - |
       if [ -d "terraform/environments/$BRANCH_NAME/" ]; then
         cd terraform/environments/$BRANCH_NAME
-        echo -e "project_id=\"$PROJECT_ID\"\nenv=\"$BRANCH_NAME\"\ncloudflare_api_token=\"$$cloudflare_api_token\"\ncloudflare_zone_id=\"$$cloudflare_zone_id\"\n$$admin_token\n$$push_installation_id\n$$push_installation_key\n$$email\n$$domain\n$$home_dir\n$$home_user" > $BRANCH_NAME.auto.tfvars
+        echo -e "project_id=\"$PROJECT_ID\"\nenv=\"$BRANCH_NAME\"\ncloudflare_api_token=\"$$cloudflare_api_token\"\n$$admin_token\n$$push_installation_id\n$$push_installation_key\n$$email\n$$domain\n$$home_dir\n$$home_user" > $BRANCH_NAME.auto.tfvars
         terraform init
       else
         exit 1
@@ -70,6 +70,4 @@ availableSecrets:
     env: home_user
   - versionName: projects/$PROJECT_NUMBER/secrets/cloudflare_api_token-$BRANCH_NAME/versions/latest
     env: cloudflare_api_token
-  - versionName: projects/$PROJECT_NUMBER/secrets/cloudflare_zone_id-$BRANCH_NAME/versions/latest
-    env: cloudflare_zone_id
     

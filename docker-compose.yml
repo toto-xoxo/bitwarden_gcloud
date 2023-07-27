@@ -1,4 +1,12 @@
-version: "3"
+version: '3.4'
+
+x-logging: &default-logging
+  logging:
+    driver: "json-file"
+    options:
+      max-size: "10m"
+      max-file: "10"
+      compress: "true"
 
 services:
   vaultwarden:
@@ -6,29 +14,33 @@ services:
     # Vaultwarden is a Rust (mostly) feature-complete implementation of Bitwarden
     # https://github.com/dani-garcia/vaultwarden
     image: vaultwarden/server:alpine
+    restart: always
     container_name: vaultwarden
     depends_on:
       - proxy
+    <<: *default-logging
     volumes:
       - ${PWD}/vaultwarden:/data
     environment:
       - LOG_FILE=/data/vaultwarden.log
       - DOMAIN=https://${DOMAIN} # DOMAIN is set in .env but doesn't have protocol prefix
-      - ADMIN_TOKEN
+      - ADMIN_TOKEN # Value-less variables are set in .env
       - PUSH_ENABLED
       - PUSH_INSTALLATION_ID
       - PUSH_INSTALLATION_KEY
       - TZ
 
   backup:
-    #build: ./docker/backup                                     # backup, in case container registry is not responsive
+    #build: ./docker/backup                      # backup, in case container registry is not responsive
     image: ghcr.io/dadatuputi/bwgc_backup:master # from https://github.com/dadatuputi/bwgc_backup
     restart: on-failure
     container_name: backup
     depends_on:
       - vaultwarden
+    <<: *default-logging
     volumes:
       - ${PWD}/vaultwarden:/data:ro
+      - ${PWD}/bitwarden/rclone:/data/rclone
       - ${PWD}/vaultwarden/backups:/data/backups
     environment:
       - BACKUP # Value-less variables are set in .env
@@ -40,29 +52,53 @@ services:
       - TZ
 
   proxy:
-    #build: ./docker/proxy # backup, in case container registry is not responsive
+    # Caddy provides an automatic HTTPS reverse proxy with Let's Encrypt cert provisioning
+    # Uses local Dockerfile to include tzdata package
+    # https://caddyserver.com/
+    #build: ./docker/proxy                      # backup, in case container registry is not responsive
     image: ghcr.io/dadatuputi/bwgc_caddy:master # from https://github.com/dadatuputi/bwgc_proxy
     restart: always
     container_name: proxy
+    <<: *default-logging
     volumes:
       - ${PWD}/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       - ${PWD}/caddy/data:/data
       - caddycerts:/root/.caddy
     ports:
-      - 80:80
+      - 80:80 # Port 80 is necessary for Let's Encrypt ACME
       - 443:443
     environment:
-      - LOG_FILE=/data/caddy.log
-      - ACME_AGREE=true
-      - DOMAIN
+      - ACME_AGREE=true # agree to ACME for auto HTTPS
+      - DOMAIN # Value-less variables are set in .env
       - EMAIL
       - TZ
 
+  ddns:
+    # https://github.com/joshuaavalon/docker-cloudflare
+    image: ghcr.io/joshuaavalon/docker-cloudflare:master-debian
+    restart: always
+    container_name: ddns
+    <<: *default-logging
+    depends_on:
+      - vaultwarden
+    volumes:
+      - ${PWD}/ddns:/app/config.yaml
+    environment:
+      - CF_DNS__AUTH__SCOPED_TOKEN
+      - CF_DNS__DOMAINS_0__NAME=${DOMAIN}
+      - CF_DNS__DOMAINS_0__PROXIED=false
+      - CF_DNS__DOMAINS_0__CREATE=true
+      - TZ
+
   fail2ban:
+    # Implements fail2ban functionality, banning ips that
+    # try to bruteforce your vault
     # https://github.com/dani-garcia/vaultwarden/wiki/Fail2Ban-Setup
+    # https://github.com/crazy-max/docker-fail2ban
     image: crazymax/fail2ban:latest
     restart: always
     container_name: fail2ban
+    <<: *default-logging
     depends_on:
       - vaultwarden
     volumes:
@@ -81,10 +117,14 @@ services:
       - TZ
 
   countryblock:
-    #build: ./docker/countryblock # backup, in case container registry is not responsive
+    # The block script will block any country (defaults to CN and AU)
+    # Requires cap_add as listed and privileged because it uses iptables and ipset
+    # https://hub.docker.com/_/alpine/
+    #build: ./docker/countryblock                      # backup, in case container registry is not responsive
     image: ghcr.io/dadatuputi/bwgc_countryblock:master # from https://github.com/dadatuputi/bwgc_countryblock
     restart: always
     container_name: countryblock
+    <<: *default-logging
     depends_on:
       - vaultwarden
     network_mode: "host"
@@ -98,10 +138,13 @@ services:
       - TZ
 
   watchtower:
+    # Watchtower will pull down your new image, gracefully shut down your existing container
+    # and restart it with the same options that were used when it was deployed initially
     # https://github.com/containrrr/watchtower
     image: containrrr/watchtower
     restart: always
     container_name: watchtower
+    <<: *default-logging
     depends_on:
       - vaultwarden
     volumes:

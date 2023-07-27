@@ -24,6 +24,3 @@ backup_days = 30 # Number of days to keep backups of vaultwarden data
 backup_dir = "/data/backups"
 backup_rclone_conf = "/data/rclone.conf"
 backup_rclone_dest = "/Backup/Vaultwarden"
-
-### CLOUDFLARE ###
-cloudflare_zone_A_name = "vault-dev"

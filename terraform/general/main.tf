@@ -49,10 +49,14 @@ resource "google_compute_instance" "vaultwarden" {
             BACKUP_RCLONE_CONF=${var.backup_rclone_conf}
             BACKUP_RCLONE_DEST=${var.backup_rclone_dest}
 
-            ### CADDY ###
+            ### PROXY ###
 
             EMAIL= "${var.email}"
 
+            ### DDNS ###
+
+            CF_DNS__AUTH__SCOPED_TOKEN=${var.cloudflare_api_token}
+            
             ### COUNTRYBLOCK ###
 
             COUNTRIES=CN HK AU

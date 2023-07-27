@@ -23,16 +23,6 @@ variable "cloudflare_api_token" {
     description = "value of cloudflare api token"
 }
 
-variable "cloudflare_zone_id" {
-    type = string
-    description = "value of cloudflare zone id"
-}
-
-variable "cloudflare_zone_A_name" {
-    type = string
-    description = "value of cloudflare zone A name"
-}
-
 variable "instance_name" {
     type = string
     description = "Name of the instance"

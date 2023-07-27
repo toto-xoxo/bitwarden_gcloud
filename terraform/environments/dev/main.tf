@@ -33,6 +33,4 @@ backup_dir = var.backup_dir
 backup_rclone_conf = var.backup_rclone_conf
 backup_rclone_dest = var.backup_rclone_dest
 cloudflare_api_token = var.cloudflare_api_token
-cloudflare_zone_id = var.cloudflare_zone_id
-cloudflare_zone_A_name = var.cloudflare_zone_A_name
 }
